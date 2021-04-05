@@ -1,0 +1,2 @@
+main:
+    li x1, 0x1123456789ABCDEF
