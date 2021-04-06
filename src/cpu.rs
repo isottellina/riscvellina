@@ -226,7 +226,34 @@ impl CPU {
                     (0x6, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) | self.iregs.read_reg(rs2)) }
                     // AND
                     (0x7, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) & self.iregs.read_reg(rs2)) }
-                    _ => unimplemented!("funct3 or funct7 not implemented! (instr: {:08x}", instr)
+
+                    // M extension begins here
+                    // MUL
+                    (0x0, 1) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_mul(self.iregs.read_reg(rs2))) }
+                    // MULH
+                    (0x1, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (((self.iregs.read_reg(rs1) as i64 as i128).wrapping_mul(self.iregs.read_reg(rs2) as i64 as i128)) >> 64) as u64)
+                    }
+                    // MULHSU
+                    (0x2, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (((self.iregs.read_reg(rs1) as i64 as i128).wrapping_mul(self.iregs.read_reg(rs2) as i128)) >> 64) as u64)
+                    }
+                    // MULHU
+                    (0x3, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (((self.iregs.read_reg(rs1) as u128).wrapping_mul(self.iregs.read_reg(rs2) as u128)) >> 64) as u64)
+                    }
+                    // DIV
+                    (0x4, 1) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) as i64).wrapping_div(self.iregs.read_reg(rs2) as i64) as u64) }
+                    // DIVU
+                    (0x5, 1) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_div(self.iregs.read_reg(rs2))) }
+                    // REM
+                    (0x6, 1) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) as i64).wrapping_rem(self.iregs.read_reg(rs2) as i64) as u64) }
+                    // REMU
+                    (0x7, 1) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_rem(self.iregs.read_reg(rs2))) }
+                    _ => unimplemented!("funct3 or funct7 not implemented! (instr: {:08x})", instr)
                 }
             },
             0x3B => {
@@ -245,6 +272,32 @@ impl CPU {
                     (0x5, 0) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) >> (self.iregs.read_reg(rs2) & 0x1f)) as i32 as u32 as u64) }
                     // SRAW
                     (0x5, 0x20) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i32) >> (self.iregs.read_reg(rs2) & 0x1f)) as u32 as u64) }
+                    // Here begins the M extension
+                    // MULW
+                    (0x0, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (self.iregs.read_reg(rs1) as u32 as i32).wrapping_mul(self.iregs.read_reg(rs2) as u32 as i32) as i64 as u64)
+                    }
+                    // DIVW
+                    (0x4, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (self.iregs.read_reg(rs1) as u32 as i32).checked_div(self.iregs.read_reg(rs2) as u32 as i32).unwrap_or(-1i32) as i64 as u64)
+                    }
+                    // DIVUW
+                    (0x5, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (self.iregs.read_reg(rs1) as u32).checked_div(self.iregs.read_reg(rs2) as u32).unwrap_or(0xFFFFFFFF) as i32 as i64 as u64)
+                    }
+                    // REMW
+                    (0x6, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (self.iregs.read_reg(rs1) as u32 as i32).checked_rem(self.iregs.read_reg(rs2) as u32 as i32).unwrap_or(-1i32) as i64 as u64)
+                    }
+                    // REMUW
+                    (0x7, 1) => { self.iregs.write_reg(
+                        rd, 
+                        (self.iregs.read_reg(rs1) as u32).checked_rem(self.iregs.read_reg(rs2) as u32).unwrap_or(0xFFFFFFFF) as i32 as i64 as u64)
+                    }                    
                     _ => unimplemented!("Not implemented yet")
                 }
             },

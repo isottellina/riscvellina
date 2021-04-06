@@ -3,7 +3,7 @@ int fib(int a, int b) {
 }
 
 int multiply(int a, int b) {
-    return a * b;
+    return a % b;
 }
 
 int main() {
@@ -17,7 +17,7 @@ int main() {
     }
 
     asm("mv t0, %0" :: "r"(a));
-    int test = multiply(a, b);
+    int test = multiply(a, 15);
     asm("mv t1, %0" :: "r"(test));
     asm("nop");
     return 0;
