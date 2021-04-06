@@ -203,48 +203,48 @@ impl CPU {
             0x33 => {
                 // RV32/64I Register-to-register functions
                 let rs2 = (instr >> 20) & 0x1F;
-                let funct7 = (instr >> 30) & 3;
+                let funct7 = instr >> 25;
 
                 match (funct3, funct7) {
                     // ADD
-                    (0x0, 0x0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_add(self.iregs.read_reg(rs2))) }
+                    (0x0, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_add(self.iregs.read_reg(rs2))) }
                     // SUB
-                    (0x0, 0x1) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_sub(self.iregs.read_reg(rs2))) }
+                    (0x0, 0x20) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_sub(self.iregs.read_reg(rs2))) }
                     // SLL
-                    (0x1, _) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) << (self.iregs.read_reg(rs2) & 0x3F)) }
+                    (0x1, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) << (self.iregs.read_reg(rs2) & 0x3F)) }
                     // SLT
-                    (0x2, _) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i64) < (self.iregs.read_reg(rs2) as i64)) as u64)}
+                    (0x2, 0) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i64) < (self.iregs.read_reg(rs2) as i64)) as u64)}
                     // SLTU
-                    (0x3, _) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) < self.iregs.read_reg(rs2)) as u64) }
+                    (0x3, 0) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) < self.iregs.read_reg(rs2)) as u64) }
                     // XOR
-                    (0x4, _) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) ^ self.iregs.read_reg(rs2)) }
+                    (0x4, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) ^ self.iregs.read_reg(rs2)) }
                     // SRL
-                    (0x5, 0x0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) >> (self.iregs.read_reg(rs2) & 0x3F)) }
+                    (0x5, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) >> (self.iregs.read_reg(rs2) & 0x3F)) }
                     // SRA
-                    (0x5, 0x1) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i64) >> (self.iregs.read_reg(rs2) & 0x3F)) as u64) }
+                    (0x5, 0x20) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i64) >> (self.iregs.read_reg(rs2) & 0x3F)) as u64) }
                     // OR
-                    (0x6, _) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) | self.iregs.read_reg(rs2)) }
+                    (0x6, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) | self.iregs.read_reg(rs2)) }
                     // AND
-                    (0x7, _) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) & self.iregs.read_reg(rs2)) }
+                    (0x7, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1) & self.iregs.read_reg(rs2)) }
                     _ => unimplemented!("funct3 or funct7 not implemented! (instr: {:08x}", instr)
                 }
             },
             0x3B => {
                 // RV64I register-to-register
                 let rs2 = (instr >> 20) & 0x1f;
-                let funct7 = (instr >> 30) & 3;
+                let funct7 = instr >> 25;
 
                 match (funct3, funct7) {
                     // ADD
-                    (0x0, 0x0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_add(self.iregs.read_reg(rs2) as i64 as i32 as u64)) }
+                    (0x0, 0) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_add(self.iregs.read_reg(rs2) as i64 as i32 as u64)) }
                     // SUB
-                    (0x0, 0x1) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_sub(self.iregs.read_reg(rs2) as i64 as i32 as u64)) }
+                    (0x0, 0x20) => { self.iregs.write_reg(rd, self.iregs.read_reg(rs1).wrapping_sub(self.iregs.read_reg(rs2) as i64 as i32 as u64)) }
                     // SLLW
-                    (0x1, _) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) << (self.iregs.read_reg(rs2) & 0x1f)) as i32 as u64) }
+                    (0x1, 0) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) << (self.iregs.read_reg(rs2) & 0x1f)) as i32 as u64) }
                     // SRLW
-                    (0x5, 0x0) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) >> (self.iregs.read_reg(rs2) & 0x1f)) as i32 as u32 as u64) }
+                    (0x5, 0) => { self.iregs.write_reg(rd, (self.iregs.read_reg(rs1) >> (self.iregs.read_reg(rs2) & 0x1f)) as i32 as u32 as u64) }
                     // SRAW
-                    (0x5, 0x1) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i32) >> (self.iregs.read_reg(rs2) & 0x1f)) as u32 as u64) }
+                    (0x5, 0x20) => { self.iregs.write_reg(rd, ((self.iregs.read_reg(rs1) as i32) >> (self.iregs.read_reg(rs2) & 0x1f)) as u32 as u64) }
                     _ => unimplemented!("Not implemented yet")
                 }
             },

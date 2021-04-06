@@ -2,6 +2,10 @@ int fib(int a, int b) {
     return a + b;
 }
 
+int multiply(int a, int b) {
+    return a * b;
+}
+
 int main() {
     int a = 0, b = 1;
 
@@ -12,7 +16,9 @@ int main() {
         asm("mv t0, %0" :: "r"(b));
     }
 
-    asm("mv t0, %0" :: "r"(b));
+    asm("mv t0, %0" :: "r"(a));
+    int test = multiply(a, b);
+    asm("mv t1, %0" :: "r"(test));
     asm("nop");
     return 0;
 }
