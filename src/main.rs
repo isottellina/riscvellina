@@ -20,8 +20,9 @@ fn main() -> std::io::Result<()> {
 
     while !cpu.halt {
         cpu.run_instr();
-        println!("{:?}", cpu);
     }
+
+    println!("{:?}", cpu);
 
     Ok(())
 }

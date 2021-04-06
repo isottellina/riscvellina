@@ -35,19 +35,19 @@ pub fn disasm_general(instr: u32) -> String {
 
             match (funct3, funct7) {
                 // ADDI
-                (0x0, _) => { format!("addi x{:02}, x{:02}, {:03x}", rd, rs1, imm) }
+                (0x0, _) => { format!("addi x{:02}, x{:02}, {}", rd, rs1, imm) }
                 // SLLI
-                (0x1, _) => { format!("slli x{:02}, x{:02}, {:03x}", rd, rs1, shamt) }
+                (0x1, _) => { format!("slli x{:02}, x{:02}, {}", rd, rs1, shamt) }
                 // SLTI
-                (0x2, _) => { format!("slti x{:02}, x{:02}, {:03x}", rd, rs1, imm as i64) }
+                (0x2, _) => { format!("slti x{:02}, x{:02}, {}", rd, rs1, imm) }
                 // SLTIU
-                (0x3, _) => { format!("stliu x{:02}, x{:02}, {:03x}", rd, rs1, imm) },
+                (0x3, _) => { format!("stliu x{:02}, x{:02}, {}", rd, rs1, imm) },
                 // XORI
                 (0x4, _) => { format!("xori x{:02}, x{:02}, {:03x}", rd, rs1, imm) }
                 // SRLI
-                (0x5, 0x0) => { format!("srli x{:02}, x{:02}, {:03x}", rd, rs1, shamt) }
+                (0x5, 0x0) => { format!("srli x{:02}, x{:02}, {}", rd, rs1, shamt) }
                 // SRAI
-                (0x5, 0x1) => { format!("srai x{:02}, x{:02}, {:03x}", rd, rs1, shamt) }
+                (0x5, 0x1) => { format!("srai x{:02}, x{:02}, {}", rd, rs1, shamt) }
                 // ORI
                 (0x6, _) => { format!("ori x{:02}, x{:02}, {:03x}", rd, rs1, imm) }
                 // ANDI
