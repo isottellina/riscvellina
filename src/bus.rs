@@ -19,7 +19,7 @@ impl Bus {
     pub fn load8(&mut self, addr: BusSize) -> u8 {
         match addr {
             0x80000000..=0xFFFFFFFF => self.dram[(addr - 0x80000000) as usize],
-            _ => panic!("Bad memory access")
+            _ => panic!("Bad memory access (Tried to load {:08x}", addr)
         }
     }
 

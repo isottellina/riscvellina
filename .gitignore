@@ -1,2 +1,4 @@
 /target
 test.bin
+test.elf
+crt0.o

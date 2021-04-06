@@ -1,7 +1,7 @@
 use crate::bus::{BusSize, Bus};
 use std::io::Read;
 
-const DRAM_SIZE: usize = 1024 * 1024 * 100;
+const DRAM_SIZE: usize = 1024 * 1024 * 128;
 
 #[derive(Default)]
 pub struct CPU {
@@ -59,14 +59,14 @@ impl CPU {
                     0x1 => { let value = self.bus.load16(addr) as i16 as i64 as u64; self.write_reg(rd, value) }
                     // LW
                     0x2 => { let value = self.bus.load32(addr) as i32 as i64 as u64; self.write_reg(rd, value) }
+                    // LD
+                    0x3 => { let value = self.bus.load64(addr); self.write_reg(rd, value) }
                     // LBU
                     0x4 => { let value = self.bus.load8(addr) as u64; self.write_reg(rd, value) }
                     // LHU
                     0x5 => { let value = self.bus.load16(addr) as u64; self.write_reg(rd, value) }
                     // LWU
                     0x6 => { let value = self.bus.load32(addr) as u64; self.write_reg(rd, value) }
-                    // LD
-                    0x7 => { let value = self.bus.load64(addr); self.write_reg(rd, value) }
                     _ => unimplemented!("funct3 not yet implemented ({:2x}, {:1x})", opcode, funct3)
                 }
             },
@@ -125,7 +125,7 @@ impl CPU {
             },
             0x23 => {
                 // RV32/64I store instructions
-                let imm = (((instr as i64) >> 20) & 0xFE0 ) as u64 | ((instr >> 7) & 0x1F) as u64;
+                let imm = ((((instr & 0xfe000000) as i32 as i64) >> 20) ) as u64 | ((instr >> 7) & 0x1F) as u64;
                 let rs2 = (instr >> 20) & 0x1F;
                 let addr = self.read_reg(rs1).wrapping_add(imm);
                 let value = self.read_reg(rs2);
@@ -232,10 +232,10 @@ impl CPU {
             0x6F => {
                 // JAL
                 // Ok so getting the offset is complicated………
-                let offset = ((instr & 0x80000000) as i32 >> 20) as u64 | // This is the bit sign 
+                let offset = ((instr & 0x80000000) as i32 as i64 >> 20) as u64 | // This is the bit sign 
                 (instr & 0xff000) as u64 |
                 ((instr >> 9) & 0x800) as u64 |
-                ((instr >> 20) & 0x1fe) as u64;
+                ((instr >> 20) & 0x7fe) as u64;
 
                 self.write_reg(rd, self.pc);
                 self.pc = self.pc.wrapping_add(offset).wrapping_sub(4);
