@@ -1,4 +1,5 @@
-use crate::bus::{BusSize, Bus};
+use crate::bus::{Bus};
+use crate::debug::disasm;
 use std::io::Read;
 
 const DRAM_SIZE: usize = 1024 * 1024 * 128;
@@ -32,7 +33,7 @@ impl CPU {
     fn fetch(&mut self) -> u32 {
         let instr = self.bus.load32(self.pc);
         self.pc += 4;
-        println!("{:08x}", instr);
+        println!("{:08x} {}", instr, disasm::disasm_general(instr));
 
         instr
     }
@@ -226,7 +227,7 @@ impl CPU {
                 let old_pc = self.pc;
                 let target = (self.read_reg(rs1).wrapping_add(offset as u32 as u64)) & !1;
 
-                self.pc = target as BusSize;
+                self.pc = target;
                 self.write_reg(rd, old_pc as u64);
             },
             0x6F => {

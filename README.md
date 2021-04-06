@@ -1,6 +1,6 @@
 # Riscvellina
 
-This is a work-in-progress RISC-V (RV64G) emulator. The current aim is to be able to boot vx6.
+This is a work-in-progress RISC-V (RV64G) emulator. The current aim is to be able to boot xv6.
 To launch it with a binary file, just run :
 
     cargo run -- bin-file

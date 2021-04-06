@@ -5,7 +5,7 @@ int fib(int a, int b) {
 int main() {
     int a = 0, b = 1;
 
-    while (b < 50) {
+    while (b < 250) {
         int c = b;
         b = fib(a, b);
         a = c;

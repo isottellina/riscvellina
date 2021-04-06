@@ -1,5 +1,6 @@
 mod cpu;
 mod bus;
+mod debug;
 
 use std::fs::File;
 use std::env::args;
