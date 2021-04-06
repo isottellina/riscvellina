@@ -8,3 +8,12 @@ To launch it with a binary file, just run :
 To make a bin file, just write a xxx.s file with RISC-V assembly and run :
 
     make xxx.bin
+
+Currently, the emulator only prints the state of its CPU at each instruction, and stops at a NOP (addi, x0, x0, 0). You have to remember that. It will soon be corrected.
+
+# TODO (for now)
+ - Debugger
+ - UART
+ - RV64M extension
+ - Ziscr extension
+ - RV64A extension

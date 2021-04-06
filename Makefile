@@ -9,4 +9,4 @@
 	rm crt0.o
 
 %.o: %.c
-	riscv64-elf-gcc  -nostdlib -march=rv64g -c crt0.s $<
+	riscv64-elf-gcc -nostdlib -march=rv64g -c crt0.s $<
