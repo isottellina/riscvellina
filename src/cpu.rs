@@ -35,7 +35,7 @@ impl std::fmt::Debug for IRegisters {
 
         let mut output = String::new();
         for i in (0..32).step_by(4) {
-            output = format!("{}\n{}",
+            output = format!("{}\n\t{}",
                 output,
                 format!("x{:02}({})={:016x} x{:02}({})={:016x} x{:02}({})={:016x} x{:02}({})={:016x}",
                         i, abi[i], self.read_reg(i as u32),
@@ -301,7 +301,8 @@ impl std::fmt::Debug for CPU {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, 
             "CPU {{\n\
-            PC: {:016x}, Bus: {:?}\n\
-            {:?}", self.pc, self.bus, self.iregs)
+            \tPC: {:016x}, Bus: {:?}\n\
+            \t{:?}\n\
+            }}", self.pc, self.bus, self.iregs)
     }
 }
