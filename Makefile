@@ -3,3 +3,6 @@
 
 %.elf: %.s
 	riscv64-elf-gcc -Wl,-Ttext=0x0 -march=rv64g -nostdlib -o $@ $<
+
+%.elf: %.c
+	riscv64-elf-gcc -Wl,-Ttext=0x0 -march=rv64g -nostdlib -o $@ $<

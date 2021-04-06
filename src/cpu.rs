@@ -1,6 +1,8 @@
 use crate::bus::{BusSize, Bus};
 use std::io::Read;
 
+const DRAM_SIZE: usize = 1024 * 1024 * 100;
+
 #[derive(Default)]
 pub struct CPU {
     pc: u64,
@@ -14,7 +16,7 @@ impl CPU {
         Self {
             pc: 0x80000000,
             regs: [0; 32],
-            bus: Bus::new(0x1000000),
+            bus: Bus::new(DRAM_SIZE),
             halt: false
         }
     }
