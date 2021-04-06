@@ -4,6 +4,11 @@ use std::io::Read;
 
 const DRAM_SIZE: usize = 1024 * 1024 * 128;
 
+#[derive(Debug)]
+enum State {
+    Machine
+}
+
 #[derive(Default)]
 struct IRegisters {
     regs: [u64; 32]
@@ -50,11 +55,11 @@ impl std::fmt::Debug for IRegisters {
     }
 }
 
-#[derive(Default)]
 pub struct CPU {
     pc: u64,
     iregs: IRegisters,
     bus: Bus,
+    state: State,
     pub halt: bool
 }
 
@@ -64,6 +69,7 @@ impl CPU {
             pc: 0x80000000,
             iregs: Default::default(),
             bus: Bus::new(DRAM_SIZE),
+            state: State::Machine,
             halt: false
         }
     }
@@ -297,12 +303,18 @@ impl CPU {
     }
 }
 
+impl Default for CPU {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl std::fmt::Debug for CPU {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, 
             "CPU {{\n\
-            \tPC: {:016x}, Bus: {:?}\n\
+            \tPC: {:016x}, State: {:?}, Bus: {:?}\n\
             \t{:?}\n\
-            }}", self.pc, self.bus, self.iregs)
+            }}", self.pc, self.state, self.bus, self.iregs)
     }
 }
