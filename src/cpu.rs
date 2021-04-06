@@ -74,31 +74,26 @@ impl CPU {
                 let funct7 = (instr >> 30) & 3;
                 let shamt = (instr >> 20) & 0x3F;
 
-                match funct3 {
+                match (funct3, funct7) {
                     // ADDI
-                    0x0 => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(imm)) }
+                    (0x0, _) => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(imm)) }
                     // SLLI
-                    0x1 => { self.write_reg(rd, self.read_reg(rs1) << shamt) }
+                    (0x1, _) => { self.write_reg(rd, self.read_reg(rs1) << shamt) }
                     // SLTI
-                    0x2 => { self.write_reg(rd, ((self.read_reg(rs1) as i64) < imm as i64) as u64) }
+                    (0x2, _) => { self.write_reg(rd, ((self.read_reg(rs1) as i64) < imm as i64) as u64) }
                     // SLTIU
-                    0x3 => { self.write_reg(rd, (self.read_reg(rs1) < imm) as u64)},
+                    (0x3, _) => { self.write_reg(rd, (self.read_reg(rs1) < imm) as u64)},
                     // XORI
-                    0x4 => { self.write_reg(rd, self.read_reg(rs1) ^ imm)}
-                    0x5 => {
-                        match funct7 {
-                            // SRLI
-                            0x0 => { self.write_reg(rd, self.read_reg(rs1) >> shamt) }
-                            // SRAI
-                            0x1 => { self.write_reg(rd, (self.read_reg(rs1) as i64 >> shamt) as u64) }
-                            _ => panic!("Bad instruction! {:08x}", instr)
-                        }
-                    }
+                    (0x4, _) => { self.write_reg(rd, self.read_reg(rs1) ^ imm)}
+                    // SRLI
+                    (0x5, 0x0) => { self.write_reg(rd, self.read_reg(rs1) >> shamt) }
+                    // SRAI
+                    (0x5, 0x1) => { self.write_reg(rd, (self.read_reg(rs1) as i64 >> shamt) as u64) }
                     // ORI
-                    0x6 => { self.write_reg(rd, self.read_reg(rs1) | imm) }
+                    (0x6, _) => { self.write_reg(rd, self.read_reg(rs1) | imm) }
                     // ANDI
-                    0x7 => { self.write_reg(rd, self.read_reg(rs1) & imm) }
-                    _ => unimplemented!("funct3 not implemented! ({:01x})", funct3)
+                    (0x7, _) => { self.write_reg(rd, self.read_reg(rs1) & imm) }
+                    _ => unimplemented!("funct3 or funct7 not implemented! (instr: {:08x})", instr)
                 }
             },
             0x17 => {
@@ -114,21 +109,15 @@ impl CPU {
                 let funct7 = (instr >> 30) & 3;
                 let shamt = (instr >> 20) & 0x1F;
 
-                match funct3 {
+                match (funct3, funct7) {
                     // ADDIW
-                    0x0 => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(imm as i64 as i32 as u64))}
+                    (0x0, _) => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(imm as i64 as i32 as u64))}
                     // SLLIW
-                    0x1 => { self.write_reg(rd, (self.read_reg(rs1) << shamt) as i32 as u64) }
-                    0x5 => {
-                        println!("{:08x} {}", self.read_reg(rs1), self.read_reg(rs1) as i32);
-                        match funct7 {
-                            // SRLIW
-                            0x0 => { self.write_reg(rd, (self.read_reg(rs1) >> shamt) as i32 as u32 as u64) }
-                            // SRAIW
-                            0x1 => { self.write_reg(rd, ((self.read_reg(rs1) as i32) >> shamt) as u32 as u64) },
-                            _ => panic!("Bad instruction!")
-                        }
-                    }
+                    (0x1, _) => { self.write_reg(rd, (self.read_reg(rs1) << shamt) as i32 as u64) }
+                    // SRLIW
+                    (0x5, 0x0) => { self.write_reg(rd, (self.read_reg(rs1) >> shamt) as i32 as u32 as u64) }
+                    // SRAIW
+                    (0x5, 0x1) => { self.write_reg(rd, ((self.read_reg(rs1) as i32) >> shamt) as u32 as u64) }
                     _ => unimplemented!("Not implemented yet")
                 }
             },
@@ -161,38 +150,28 @@ impl CPU {
                 let rs2 = (instr >> 20) & 0x1F;
                 let funct7 = (instr >> 30) & 3;
 
-                match funct3 {
-                    0x0 => {
-                        match funct7 {
-                            // ADD
-                            0x0 => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(self.read_reg(rs2))) }
-                            // SUB
-                            0x1 => { self.write_reg(rd, self.read_reg(rs1).wrapping_sub(self.read_reg(rs2)))}
-                            _ => panic!("Bad instruction!")
-                        }
-                    }
+                match (funct3, funct7) {
+                    // ADD
+                    (0x0, 0x0) => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(self.read_reg(rs2))) }
+                    // SUB
+                    (0x0, 0x1) => { self.write_reg(rd, self.read_reg(rs1).wrapping_sub(self.read_reg(rs2))) }
                     // SLL
-                    0x1 => { self.write_reg(rd, self.read_reg(rs1) << (self.read_reg(rs2) & 0x3F)) }
+                    (0x1, _) => { self.write_reg(rd, self.read_reg(rs1) << (self.read_reg(rs2) & 0x3F)) }
                     // SLT
-                    0x2 => { self.write_reg(rd, ((self.read_reg(rs1) as i64) < (self.read_reg(rs2) as i64)) as u64)}
+                    (0x2, _) => { self.write_reg(rd, ((self.read_reg(rs1) as i64) < (self.read_reg(rs2) as i64)) as u64)}
                     // SLTU
-                    0x3 => { self.write_reg(rd, (self.read_reg(rs1) < self.read_reg(rs2)) as u64) }
+                    (0x3, _) => { self.write_reg(rd, (self.read_reg(rs1) < self.read_reg(rs2)) as u64) }
                     // XOR
-                    0x4 => { self.write_reg(rd, self.read_reg(rs1) ^ self.read_reg(rs2)) }
-                    0x5 => {
-                        match funct7 {
-                            // SRL
-                            0x0 => { self.write_reg(rd, self.read_reg(rs1) >> (self.read_reg(rs2) & 0x3F)) }
-                            // SRA
-                            0x1 => { self.write_reg(rd, ((self.read_reg(rs1) as i64) >> (self.read_reg(rs2) & 0x3F)) as u64) }
-                            _ => panic!("Bad instruction!")
-                        }
-                    }
+                    (0x4, _) => { self.write_reg(rd, self.read_reg(rs1) ^ self.read_reg(rs2)) }
+                    // SRL
+                    (0x5, 0x0) => { self.write_reg(rd, self.read_reg(rs1) >> (self.read_reg(rs2) & 0x3F)) }
+                    // SRA
+                    (0x5, 0x1) => { self.write_reg(rd, ((self.read_reg(rs1) as i64) >> (self.read_reg(rs2) & 0x3F)) as u64) }
                     // OR
-                    0x6 => { self.write_reg(rd, self.read_reg(rs1) | self.read_reg(rs2)) }
+                    (0x6, _) => { self.write_reg(rd, self.read_reg(rs1) | self.read_reg(rs2)) }
                     // AND
-                    0x7 => { self.write_reg(rd, self.read_reg(rs1) & self.read_reg(rs2)) }
-                    _ => unimplemented!("funct3 not implemented!")
+                    (0x7, _) => { self.write_reg(rd, self.read_reg(rs1) & self.read_reg(rs2)) }
+                    _ => unimplemented!("funct3 or funct7 not implemented! (instr: {:08x}", instr)
                 }
             },
             0x3B => {
@@ -200,26 +179,17 @@ impl CPU {
                 let rs2 = (instr >> 20) & 0x1f;
                 let funct7 = (instr >> 30) & 3;
 
-                match funct3 {
-                    0x0 => { 
-                        match funct7 {
-                            0x0 => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(self.read_reg(rs2) as i64 as i32 as u64)) }
-                            0x1 => { self.write_reg(rd, self.read_reg(rs1).wrapping_sub(self.read_reg(rs2) as i64 as i32 as u64)) }
-                            _ => panic!("Bad instruction!")
-                        }
-                    }
+                match (funct3, funct7) {
+                    // ADD
+                    (0x0, 0x0) => { self.write_reg(rd, self.read_reg(rs1).wrapping_add(self.read_reg(rs2) as i64 as i32 as u64)) }
+                    // SUB
+                    (0x0, 0x1) => { self.write_reg(rd, self.read_reg(rs1).wrapping_sub(self.read_reg(rs2) as i64 as i32 as u64)) }
                     // SLLW
-                    0x1 => { self.write_reg(rd, (self.read_reg(rs1) << (self.read_reg(rs2) & 0x1f)) as i32 as u64) }
-                    0x5 => {
-
-                        match funct7 {
-                            // SRLW
-                            0x0 => { self.write_reg(rd, (self.read_reg(rs1) >> (self.read_reg(rs2) & 0x1f)) as i32 as u32 as u64) }
-                            // SRAW
-                            0x1 => { self.write_reg(rd, ((self.read_reg(rs1) as i32) >> (self.read_reg(rs2) & 0x1f)) as u32 as u64) },
-                            _ => panic!("Bad instruction!")
-                        }
-                    }
+                    (0x1, _) => { self.write_reg(rd, (self.read_reg(rs1) << (self.read_reg(rs2) & 0x1f)) as i32 as u64) }
+                    // SRLW
+                    (0x5, 0x0) => { self.write_reg(rd, (self.read_reg(rs1) >> (self.read_reg(rs2) & 0x1f)) as i32 as u32 as u64) }
+                    // SRAW
+                    (0x5, 0x1) => { self.write_reg(rd, ((self.read_reg(rs1) as i32) >> (self.read_reg(rs2) & 0x1f)) as u32 as u64) }
                     _ => unimplemented!("Not implemented yet")
                 }
             },
